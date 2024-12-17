@@ -1,19 +1,54 @@
 plugins {
     id 'java'
+    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.25"
+    id 'jacoco'
+    id("org.sonarqube") version "4.4.0.3356"
+    id 'maven-publish'
 }
 
 group = 'com.example'
-version = '1.0-SNAPSHOT'
+version = '1.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'io.cucumber:cucumber-java:6.0.0'
+    testImplementation 'io.cucumber:cucumber-junit:6.0.0'
+    testImplementation 'junit:junit:4.12'
 }
 
-test {
-    useJUnitPlatform()
+cucumberReports {
+    outputDir = file('build/reports/cucumber')
+    buildId = '0'
+    reports = files('reports/example-report.json')
+}
+
+test.finalizedBy"jacocoTestReport"
+
+test.finalizedBy"sonar"
+
+sonarqube {
+    properties {
+        property "sonar.scm.disabled", "true"
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url 'https://mymavenrepo.com/repo/fLWOEBhJTSOzeDnLN7mT/'
+            credentials {
+                username 'myMavenRepo'
+                password 'myMavecRepo'
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
